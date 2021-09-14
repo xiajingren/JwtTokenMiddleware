@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JwtTokenMiddleware
 {
@@ -27,18 +28,21 @@ namespace JwtTokenMiddleware
             }
 
             // token path
-            if (httpMethod == HttpMethods.Get &&
+            if (httpMethod == HttpMethods.Post &&
                 Regex.IsMatch(path, $"^/?{_jwtTokenOptions.TokenPath}/?$", RegexOptions.IgnoreCase))
             {
-                await context.Response.WriteAsJsonAsync(new { Token = "token..." });
+                var handle = context.RequestServices.GetRequiredService(_jwtTokenOptions.HandleType);
+                if (handle is JwtTokenHandle<IJwtTokenRequest> jwtTokenHandle)
+                    await jwtTokenHandle.GenerateTokenAsync(context);
+
                 return;
             }
 
             // refresh token path
-            if (httpMethod == HttpMethods.Get &&
+            if (httpMethod == HttpMethods.Post &&
                 Regex.IsMatch(path, $"^/?{_jwtTokenOptions.RefreshTokenPath}/?$", RegexOptions.IgnoreCase))
             {
-                await context.Response.WriteAsJsonAsync(new { Token = "refresh token..." });
+                await context.Response.WriteAsJsonAsync(new {Token = "refresh token..."});
                 return;
             }
 

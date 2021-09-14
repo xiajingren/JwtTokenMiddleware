@@ -39,5 +39,13 @@ namespace JwtTokenMiddleware
         /// default: SecurityAlgorithms.HmacSha256
         /// </summary>
         public string Algorithm { get; set; } = SecurityAlgorithms.HmacSha256;
+
+        public Type HandleType { get; private set; }
+
+        public void RegisterHandle<THandle>()
+        {
+            HandleType = typeof(THandle);
+        }
+        
     }
 }
