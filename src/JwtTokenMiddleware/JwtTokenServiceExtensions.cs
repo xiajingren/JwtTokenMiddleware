@@ -15,7 +15,7 @@ namespace JwtTokenMiddleware
             Action<JwtBearerOptions> configureJwtBearerOptions = null)
         {
             var jwtTokenOptions = new JwtTokenOptions();
-            configureJwtTokenOptions.Invoke(jwtTokenOptions);
+            configureJwtTokenOptions(jwtTokenOptions);
 
             if (string.IsNullOrEmpty(jwtTokenOptions.SecurityKey))
             {

@@ -30,9 +30,9 @@ namespace SampleApi
         {
             services.AddControllers();
 
-            services.AddJwtTokenAuthentication(configureJwtTokenOptions: p =>
+            services.AddJwtTokenAuthentication(options =>
             {
-                
+                options.SecurityKey = @"qwd@efw3ef#7regre$5trhhy%juj";
             });
         }
 
