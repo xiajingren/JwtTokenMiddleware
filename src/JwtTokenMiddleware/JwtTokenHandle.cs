@@ -14,13 +14,43 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace JwtTokenMiddleware
 {
-    public abstract class JwtTokenHandle<TRequest> where TRequest : IJwtTokenRequest
+    public abstract class JwtTokenHandle<TRequest, TRefreshRequest> : IJwtTokenHandle
+        where TRequest : JwtTokenRequest
+        where TRefreshRequest : JwtRefreshTokenRequest
     {
-        protected abstract Task<bool> OnGenerateTokenBeforeAsync(TRequest req, List<Claim> claims);
+        protected abstract Task<Tuple<bool, List<Claim>>> TokenHandleValidateAsync(TRequest req);
+
+        protected abstract Task<Tuple<bool, List<Claim>>> RefreshTokenHandleValidateAsync(TRefreshRequest req);
 
         protected abstract Task OnGenerateTokenAfterAsync(JwtTokenResponse jwtTokenResponse);
 
-        public virtual async Task GenerateTokenAsync(HttpContext context)
+        public virtual async Task TokenHandleAsync(HttpContext context)
+        {
+            var req = await context.Request.ReadFromJsonAsync<TRequest>();
+            var (result, claims) = await TokenHandleValidateAsync(req);
+            if (!result)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
+            await GenerateTokenAsync(context, claims);
+        }
+
+        public virtual async Task RefreshTokenHandleAsync(HttpContext context)
+        {
+            var req = await context.Request.ReadFromJsonAsync<TRefreshRequest>();
+            var (result, claims) = await RefreshTokenHandleValidateAsync(req);
+            if (!result)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
+            await GenerateTokenAsync(context, claims);
+        }
+
+        protected virtual async Task GenerateTokenAsync(HttpContext context, List<Claim> customClaims)
         {
             var jwtTokenOptions = context.RequestServices.GetRequiredService<JwtTokenOptions>();
 
@@ -36,13 +66,7 @@ namespace JwtTokenMiddleware
                 new Claim(JwtRegisteredClaimNames.Iss, jwtTokenOptions.Issuer),
                 new Claim(JwtRegisteredClaimNames.Aud, jwtTokenOptions.Audience),
             };
-
-            var req = await context.Request.ReadFromJsonAsync<TRequest>();
-            if (!await OnGenerateTokenBeforeAsync(req, claims))
-            {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return;
-            }
+            claims.AddRange(customClaims);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtTokenOptions.SecurityKey));
             var cred = new SigningCredentials(key, jwtTokenOptions.Algorithm);
@@ -55,20 +79,20 @@ namespace JwtTokenMiddleware
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
             var jwtTokenResponse = new JwtTokenResponse(JwtBearerDefaults.AuthenticationScheme, jwtToken,
-                (int) jwtTokenOptions.ExpiresIn.TotalMilliseconds, GenerateRefreshToken());
+                (int)jwtTokenOptions.ExpiresIn.TotalSeconds, GenerateRefreshToken());
 
             await context.Response.WriteAsJsonAsync(jwtTokenResponse);
 
             await OnGenerateTokenAfterAsync(jwtTokenResponse);
         }
 
-        public virtual string GenerateRefreshToken()
+        protected virtual string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
-        
+
     }
 }

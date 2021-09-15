@@ -37,16 +37,30 @@ namespace SampleApi
                 options.SecurityKey = @"qwd@efw3ef#7regre$5trhhy%juj";
                 options.RegisterHandle<MyHandle>();
             });
-            
         }
 
-        public class MyHandle : JwtTokenHandle<MyJwtTokenRequest>
+        public class MyHandle : JwtTokenHandle<MyJwtTokenRequest, MyJwtRefreshTokenRequest>
         {
-            protected override async Task<bool> OnGenerateTokenBeforeAsync(MyJwtTokenRequest req, List<Claim> claims)
+            protected override async Task<Tuple<bool, List<Claim>>> TokenHandleValidateAsync(MyJwtTokenRequest req)
             {
                 await Task.CompletedTask;
 
-                return req.Username == "admin" && req.Password == "123456";
+                var claims = new List<Claim> { new Claim("test", "111") };
+
+                var result = req.Username == "admin" && req.Password == "123456";
+
+                return new Tuple<bool, List<Claim>>(result, claims);
+            }
+
+            protected override async Task<Tuple<bool, List<Claim>>> RefreshTokenHandleValidateAsync(MyJwtRefreshTokenRequest req)
+            {
+                await Task.CompletedTask;
+
+                var claims = new List<Claim> { new Claim("test", "111") };
+
+                var result = !string.IsNullOrEmpty(req.RefreshToken);
+
+                return new Tuple<bool, List<Claim>>(result, claims);
             }
 
             protected override async Task OnGenerateTokenAfterAsync(JwtTokenResponse jwtTokenResponse)
@@ -56,11 +70,14 @@ namespace SampleApi
             }
         }
 
-        public class MyJwtTokenRequest : IJwtTokenRequest
+        public class MyJwtTokenRequest : JwtTokenRequest
         {
-            public string Username { get; set; }
 
-            public string Password { get; set; }
+        }
+
+        public class MyJwtRefreshTokenRequest : JwtRefreshTokenRequest
+        {
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

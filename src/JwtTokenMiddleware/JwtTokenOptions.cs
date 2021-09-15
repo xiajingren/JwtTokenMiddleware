@@ -42,10 +42,14 @@ namespace JwtTokenMiddleware
 
         public Type HandleType { get; private set; }
 
-        public void RegisterHandle<THandle>()
+        /// <summary>
+        /// please inherit from <see cref="JwtTokenHandle{TRequest,TRefreshRequest}"/>
+        /// </summary>
+        /// <typeparam name="THandle"></typeparam>
+        public void RegisterHandle<THandle>() where THandle : IJwtTokenHandle
         {
             HandleType = typeof(THandle);
         }
-        
+
     }
 }

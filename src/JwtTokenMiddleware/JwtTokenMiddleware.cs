@@ -16,7 +16,7 @@ namespace JwtTokenMiddleware
             _jwtTokenOptions = jwtTokenOptions;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, IJwtTokenHandle jwtTokenHandle)
         {
             var httpMethod = context.Request.Method;
             var path = context.Request.Path.Value;
@@ -31,10 +31,7 @@ namespace JwtTokenMiddleware
             if (httpMethod == HttpMethods.Post &&
                 Regex.IsMatch(path, $"^/?{_jwtTokenOptions.TokenPath}/?$", RegexOptions.IgnoreCase))
             {
-                var handle = context.RequestServices.GetRequiredService(_jwtTokenOptions.HandleType);
-                if (handle is JwtTokenHandle<IJwtTokenRequest> jwtTokenHandle)
-                    await jwtTokenHandle.GenerateTokenAsync(context);
-
+                await jwtTokenHandle.TokenHandleAsync(context);
                 return;
             }
 
@@ -42,7 +39,7 @@ namespace JwtTokenMiddleware
             if (httpMethod == HttpMethods.Post &&
                 Regex.IsMatch(path, $"^/?{_jwtTokenOptions.RefreshTokenPath}/?$", RegexOptions.IgnoreCase))
             {
-                await context.Response.WriteAsJsonAsync(new {Token = "refresh token..."});
+                await jwtTokenHandle.RefreshTokenHandleAsync(context);
                 return;
             }
 

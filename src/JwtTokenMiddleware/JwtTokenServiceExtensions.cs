@@ -36,9 +36,9 @@ namespace JwtTokenMiddleware
                     };
                 }));
 
-            
+
             services.AddSingleton(jwtTokenOptions);
-            services.AddScoped(typeof(JwtTokenHandle<>), jwtTokenOptions.HandleType);
+            services.AddScoped(typeof(IJwtTokenHandle), jwtTokenOptions.HandleType);
 
             return services;
         }
