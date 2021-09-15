@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace JwtTokenMiddleware
 {

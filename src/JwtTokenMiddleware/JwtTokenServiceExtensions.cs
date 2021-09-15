@@ -2,7 +2,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 
 namespace JwtTokenMiddleware
@@ -35,7 +34,6 @@ namespace JwtTokenMiddleware
                         ValidateIssuerSigningKey = true,
                     };
                 }));
-
 
             services.AddSingleton(jwtTokenOptions);
             services.AddScoped(typeof(IJwtTokenHandle), jwtTokenOptions.HandleType);

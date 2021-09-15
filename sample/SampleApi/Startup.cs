@@ -1,19 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using JwtTokenMiddleware;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 namespace SampleApi
 {
@@ -30,11 +24,15 @@ namespace SampleApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
-            services.AddScoped<MyJwtTokenRequest>();
+            
             services.AddJwtTokenAuthentication(options =>
             {
-                options.SecurityKey = @"qwd@efw3ef#7regre$5trhhy%juj";
+                // options.Issuer = "my_iss";
+                // options.Audience = "my_iss";
+                // options.ExpiresIn = TimeSpan.FromMinutes(30);
+                // options.TokenPath = "/token";
+                // options.RefreshTokenPath = "/refresh_token";
+                options.SecurityKey = @"B3SACXE7shay8+mNe59qO987DM94+YOrzNtUex5I2UI=";
                 options.RegisterHandle<MyHandle>();
             });
         }
@@ -45,39 +43,45 @@ namespace SampleApi
             {
                 await Task.CompletedTask;
 
-                var claims = new List<Claim> { new Claim("test", "111") };
-
+                // validate logic ...
                 var result = req.Username == "admin" && req.Password == "123456";
+                if (!result)
+                    return new Tuple<bool, List<Claim>>(false, null);
 
-                return new Tuple<bool, List<Claim>>(result, claims);
+                var claims = new List<Claim> {new Claim("my_claim", "my_claim_value")};
+                return new Tuple<bool, List<Claim>>(true, claims);
             }
 
-            protected override async Task<Tuple<bool, List<Claim>>> RefreshTokenHandleValidateAsync(MyJwtRefreshTokenRequest req)
+            protected override async Task<Tuple<bool, List<Claim>>> RefreshTokenHandleValidateAsync(
+                MyJwtRefreshTokenRequest req)
             {
                 await Task.CompletedTask;
 
-                var claims = new List<Claim> { new Claim("test", "111") };
+                // validate logic ...
+                var result = req.RefreshToken == "z849OH9T+opbUXm8vVD1b2/M87KzClfv4YFEQwhZAYo=";
+                if (!result)
+                    return new Tuple<bool, List<Claim>>(false, null);
 
-                var result = !string.IsNullOrEmpty(req.RefreshToken);
-
-                return new Tuple<bool, List<Claim>>(result, claims);
+                var claims = new List<Claim> {new Claim("my_claim", "my_claim_value")};
+                return new Tuple<bool, List<Claim>>(true, claims);
             }
 
             protected override async Task OnGenerateTokenAfterAsync(JwtTokenResponse jwtTokenResponse)
             {
-                //todo:
                 await Task.CompletedTask;
+
+                // save the refresh_token to database ...
             }
         }
 
         public class MyJwtTokenRequest : JwtTokenRequest
         {
-
+            // custom parameters
         }
 
         public class MyJwtRefreshTokenRequest : JwtRefreshTokenRequest
         {
-
+            // custom parameters
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,7 +98,7 @@ namespace SampleApi
 
             app.UseAuthorization();
 
-            app.UseJwtToken();
+            app.UseJwtToken(); // add this line
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

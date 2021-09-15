@@ -6,12 +6,12 @@ namespace JwtTokenMiddleware
     public class JwtTokenOptions
     {
         /// <summary>
-        /// default:    "/token"
+        /// default:    "/auth/token"
         /// </summary>
         public string TokenPath { get; set; } = "/auth/token";
 
         /// <summary>
-        /// default:    "/refresh_token"
+        /// default:    "/auth/refresh_token"
         /// </summary>
         public string RefreshTokenPath { get; set; } = "/auth/refresh_token";
 
