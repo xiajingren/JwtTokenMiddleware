@@ -4,10 +4,6 @@
 
 
 
-## Contents
-
-[TOC]
-
 ## Preview
 
 ### get token
