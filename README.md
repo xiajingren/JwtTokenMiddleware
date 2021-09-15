@@ -32,7 +32,7 @@ public void ConfigureServices(IServiceCollection services)
         // options.ExpiresIn = TimeSpan.FromMinutes(30);
         // options.TokenPath = "/token";
         // options.RefreshTokenPath = "/refresh_token";
-        options.SecurityKey = @"B3SACXE7shay8+mNe59qO987DM94+YOrzNtUex5I2UI=";
+        options.SecurityKey = "B3SACXE7shay8+mNe59qO987DM94+YOrzNtUex5I2UI=";
         options.RegisterHandle<MyHandle>();
     });
 }
