@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>xiajingren</Authors>
+    <Description>a simple jwt-token middleware for asp.net core</Description>
+    <PackageProjectUrl>https://github.com/xiajingren/JwtTokenMiddleware</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/xiajingren/JwtTokenMiddleware</RepositoryUrl>
+    <Version>1.0.0</Version>
+    <PackageTags>jwt;aspnetcore;jwt-token;jwt-auth;jwt-middleware;access-token;refresh-token</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +17,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
