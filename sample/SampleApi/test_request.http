@@ -1,0 +1,16 @@
+POST http://localhost:5000/auth/token HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "123456"
+}
+###
+
+POST http://localhost:5000/auth/refresh_token HTTP/1.1
+Content-Type: application/json
+
+{
+    "refresh_token": "z849OH9T+opbUXm8vVD1b2/M87KzClfv4YFEQwhZAYo="
+}
+###
